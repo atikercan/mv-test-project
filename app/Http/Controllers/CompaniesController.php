@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Company;
 use App\Investment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CompaniesController extends Controller
 {
@@ -20,7 +21,7 @@ class CompaniesController extends Controller
     	// 1. Open the view and implement the dollars raised
     	return view('companies.index', compact('companies'));
     }
-
+	
     /**
      * Show a single company
      *
@@ -29,9 +30,16 @@ class CompaniesController extends Controller
      */
     public function show($id)
     {
+		
     	// 2. Get the Company from its id
     	// 3. Create a view in /resources/views/companies to display the
     	//    company name, logo, and total dollars raised
+		
+		$company = Company::findOrFail($id); 
+		
+		return view('companies.view',[
+			'company'=>$company
+		]);
     }
 
     /**
@@ -53,6 +61,15 @@ class CompaniesController extends Controller
      */
     public function store(Request $request)
     {
+		$validator = Validator::make($request->all(), [
+			'name' => 'required',
+			'logo' => 'required'
+		]);
+		
+		if ($validator->fails()) {
+			return response("name and logo fields are required.", 400);
+		}
+		
     	$company = Company::create(['name' => $request->name, 'logo' => $request->logo]);
     	// Note: A test has been started for this method. Please complete it as
     	//       described in the CompaniesTest.
@@ -75,12 +92,35 @@ class CompaniesController extends Controller
      */
     public function update($id, Request $request)
     {
+		$validator = Validator::make($request->all(), [
+			'name' => 'required',
+			'logo' => 'required'
+		]);
+		
+		if ($validator->fails()) {
+			return response("name and logo fields are required.", 400);
+		}
+		
+		$company = Company::find($id);
+		if(!$company) {
+			return response("company couldn't be found.", 404);
+		}
+		$company->update([
+			'name'=>$request->name,
+			'logo'=>$request->logo
+		]);
+		
+		
+		return $company;
+		
     	// 7. Treat this as an API endpoint
     	// 8. Validate that the name and logo fields are required.
     	//    If validation fails, return an error message with what you feel
     	//    the appropriate response code is
     	// 9. Persist the company.
     	// 10. Write a test for this. Be sure to include a failure test!
+		
+		
     }
 
     /**

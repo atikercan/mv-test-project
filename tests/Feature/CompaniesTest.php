@@ -22,16 +22,59 @@ class CompaniesTest extends TestCase
     /** @test */
     public function it_creates_a_company()
     {
-        $response = $this->json('POST', '/companies', [
+		$data = [
             'name' => 'Hello', 'logo' => 'http://logo.com/logo.gif'
-        ]);
+        ];
+        $response = $this->json('POST', '/companies', $data);
 
         $response->assertStatus(200);
 
         // Add a database assertion here
+		$this->assertDatabaseHas("companies", $data);
     }
 
-    // Write other tests
+	/** @test */
+    public function it_creates_a_company_failure()
+    {
+		$data = [
+           'nam'=>'abc','log'=>'http://logo.com/log.gif'
+        ];
+        $response = $this->json('POST', '/companies', $data);
+
+        $response->assertStatus(400); 
+    }
+	
+    /** @test */
+    public function it_updates_a_company()
+    {
+		
+		$newData = [
+            'name' => 'Update test', 'logo' => 'http://logo.com/logo-test.gif'
+        ];
+		$company = factory(Company::class)->create();
+ 
+		$response = $this->json('PUT', '/companies/'.$company->id, $newData);
+			
+		
+		$response->assertStatus(200);
+		
+		
+		$this->assertDatabaseHas("companies", $newData);
+    }
+	
+	/** @test */
+    public function it_updates_a_company_failure()
+    {
+		
+		$newData = [
+            'name1' => 'Update test', 'logo1' => 'http://logo.com/logo-test.gif'
+        ];
+		$company = factory(Company::class)->create();
+ 
+		$response = $this->json('PUT', '/companies/'.$company->id, $newData);
+		
+		$response->assertStatus(400);
+    }
 
     /** @test */
     public function it_deletes_a_company()
