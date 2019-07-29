@@ -10,3 +10,8 @@ Route::get('companies/{id}', function ($id) {
 	return $company;
 });
 
+
+Route::post('companies', 'CompaniesController@store');
+Route::put('companies/{id}', 'CompaniesController@update');
+
+Route::delete('companies/{id}', 'CompaniesController@destroy');
